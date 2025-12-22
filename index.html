@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hazardous Waste Log</title>
+  
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f4f7f6;
+      margin: 0;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      box-sizing: border-box;
+    }
+
+    h2 { color: #d32f2f; text-align: center; margin-top: 0; font-size: 1.4rem; }
+
+    label { display: block; margin-top: 15px; font-weight: 600; font-size: 14px; color: #555; }
+
+    input, select {
+      width: 100%; height: 48px; margin-top: 5px; padding: 0 12px;
+      border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box;
+      font-size: 16px; background-color: #fff;
+    }
+
+    .button-group { margin-top: 25px; display: flex; flex-direction: column; gap: 12px; }
+
+    button {
+      width: 100%; height: 52px; border: none; border-radius: 10px;
+      font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.1s;
+    }
+
+    button:active { transform: scale(0.98); }
+    .btn-add { background-color: #d32f2f; color: white; }
+    .btn-export { background-color: #f0f0f0; color: #333; }
+
+    #login-section { text-align: center; padding: 40px 0; }
+    #form-section { display: none; }
+    #status { text-align: center; font-size: 13px; margin-top: 15px; font-weight: 500; }
+
+    .table-wrapper { margin-top: 30px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background-color: #fafafa; text-align: left; padding: 12px; border-bottom: 2px solid #eee; }
+    td { padding: 12px; border-bottom: 1px solid #f0f0f0; }
+
+    .watermark {
+      text-align: center; font-size: 11px; color: #bbb;
+      margin-top: 30px; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .author-name { font-weight: bold; color: #999; }
+    
+    #imagePreviewContainer img {
+      max-width: 100%; border-radius: 10px; border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Hazardous Waste Log</h2>
+
+  <div id="login-section">
+    <p>Please sign in to access the Entry form.</p>
+    <div id="buttonDiv" style="display: flex; justify-content: center; padding: 20px;"></div>
+  </div>
+
+  <div id="form-section">
+    <label for="date">Date:</label>
+    <input type="date" id="date">
+
+    <label for="volume">Volume (kg):</label>
+    <input type="number" step="0.00001" id="volume" placeholder="0.00000">
+
+    <label for="waste">Waste Name:</label>
+    <select id="waste">
+      <option value="">-- Select Waste --</option>
+      <option value="Used Oil">Used Oil</option>
+      <option value="Pathological and Infectious Waste">Pathological and Infectious Waste</option>
+      <option value="Lead Compounds">Lead Compounds</option>
+      <option value="Oil Contaminated Materials">Oil Contaminated Materials</option>
+      <option value="Grease Waste">Grease Waste</option>
+      <option value="Waste Electrical and Electronic Equipment">Waste Electrical and Electronic Equipment</option>
+      <option value="Mercury and Mercury Compounds">Mercury and Mercury Compounds</option>
+      <option value="Containers Previously containing toxic chemical substances">Containers Previously containing toxic chemical substances</option>
+    </select>
+
+    <label for="photo">Photo Proof (Optional):</label>
+    <input type="file" id="photo" accept="image/*" capture="environment" onchange="previewImage(event)">
+
+    <div id="imagePreviewContainer" style="display:none; margin-top: 10px; text-align: center;">
+      <img id="outputPreview" alt="Preview">
+    </div>
+
+    <div class="button-group">
+      <button class="btn-add" onclick="addEntry()">Add Entry</button>
+      <button class="btn-export" onclick="exportExcel()">Export to Excel (CSV)</button>
+    </div>
+    
+    <p id="status"></p>
+
+    <div class="table-wrapper">
+      <table id="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>kg</th>
+            <th>Waste Name</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="watermark">
+    Created by <span class="author-name">E. Francis Albert</span>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
