@@ -2,7 +2,7 @@ let data = [];
 let currentUserEmail = "";
 
 // REPLACE with your NEW Google Web App URL from Deployment
-const scriptURL = "https://script.google.com/macros/s/AKfycbyLasqbffYrDfrOOGmJ4CBVFIG7Y-Vk9vJ6_-622SO80NB5jeyEKpwkE1WEb50ysNfWaA/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbw_DPaqUfrInkHb4S-wa_5CNSUupkxzDVaGim-tdS8kveRA22e8oELCOUPf_Ff5flPWdg/exec";
 
 // --- 1. INITIALIZE LOGIN ---
 window.onload = function () {
@@ -17,28 +17,36 @@ window.onload = function () {
   );
 };
 
-// --- 2. GOOGLE LOGIN HANDLER ---
-function handleCredentialResponse(response) {
+// --- 2. GOOGLE LOGIN HANDLER (Approval System) ---
+async function handleCredentialResponse(response) {
   const responsePayload = parseJwt(response.credential);
-  const loggedInEmail = responsePayload.email.toLowerCase();
+  const email = responsePayload.email.toLowerCase();
+  const statusText = document.getElementById("status");
+
+  statusText.innerText = "Checking authorization...";
+  statusText.style.color = "#1976d2";
   
-  const authorizedUsers = [
-    "efrancisalbert@gmail.com", 
-    "francisalbertespina@gmail.com", 
-    "sanpabloshan@gmail.com",
-    "hdjvemu2026@gmail.com"
-  ];
-  
-  if (authorizedUsers.includes(loggedInEmail)) {
-    currentUserEmail = loggedInEmail;
-    document.getElementById("login-section").style.display = "none";
-    document.getElementById("form-section").style.display = "block";
-    
-    const statusText = document.getElementById("status");
-    statusText.innerText = "Welcome, " + responsePayload.name;
-    statusText.style.color = "#2e7d32";
-  } else {
-    alert("Access Denied for: " + loggedInEmail);
+  try {
+    // This sends the email to your Google Script's doGet function
+    const checkURL = `${scriptURL}?email=${email}`;
+    const res = await fetch(checkURL);
+    const status = await res.text();
+
+    if (status === "Approved") {
+      currentUserEmail = email;
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("form-section").style.display = "block";
+      statusText.innerText = "Welcome, " + responsePayload.name;
+      statusText.style.color = "#2e7d32";
+    } else {
+      // If status is "Pending" or "New"
+      alert("Access Pending: Your account has been registered. Please wait for the admin to Approve.");
+      statusText.innerText = "Awaiting Admin Approval";
+      statusText.style.color = "#f57c00";
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Connection error. Ensure your Google Script is deployed as 'Anyone'.");
   }
 }
 
@@ -114,7 +122,6 @@ async function addEntry() {
     statusText.innerText = "✅ Saved successfully!";
     statusText.style.color = "#2e7d32";
     
-    // Update local table UI
     data.push(rowData);
     const tbody = document.querySelector("#table tbody");
     const row = tbody.insertRow(0);
@@ -122,7 +129,6 @@ async function addEntry() {
     row.insertCell(1).innerText = volume;
     row.insertCell(2).innerText = waste;
 
-    // Reset fields
     document.getElementById("volume").value = "";
     document.getElementById("waste").value = "";
     document.getElementById("photo").value = "";
@@ -153,5 +159,6 @@ function exportExcel() {
   a.click();
   document.body.removeChild(a);
 }
+
 
 
